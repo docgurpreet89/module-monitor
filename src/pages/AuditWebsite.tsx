@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCurrentUser, getWebsites, getModulesByWebsite, getTodayAuditsByWebsite, createAudit, type Module } from "@/lib/storage";
+import { getCurrentUser, getWebsites, getModulesByWebsite, getTodayAuditsByWebsite, createAudit, updateAudit, type Module } from "@/lib/storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -108,20 +108,33 @@ const AuditWebsite = () => {
     try {
       const today = new Date().toISOString().split('T')[0];
       
-      // Submit audits for all modules
+      // Submit or update audits for all modules
       Object.values(auditData).forEach(data => {
-        createAudit({
-          websiteId: websiteId!,
-          moduleId: data.moduleId,
-          userId: user!.id,
-          status: data.status,
-          remarks: data.remarks,
-          auditDate: today,
-        });
+        // Check if audit already exists for this module today
+        const existingAudit = existingAudits.find(a => a.moduleId === data.moduleId);
+        
+        if (existingAudit) {
+          // Update existing audit
+          updateAudit(existingAudit.id, {
+            status: data.status,
+            remarks: data.remarks,
+            timestamp: new Date().toISOString(),
+          });
+        } else {
+          // Create new audit
+          createAudit({
+            websiteId: websiteId!,
+            moduleId: data.moduleId,
+            userId: user!.id,
+            status: data.status,
+            remarks: data.remarks,
+            auditDate: today,
+          });
+        }
       });
 
       toast({
-        title: "Audit submitted",
+        title: "Audit saved",
         description: "All modules have been audited successfully.",
       });
 
