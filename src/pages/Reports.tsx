@@ -13,7 +13,7 @@ const Reports = () => {
   const [user] = useState(getCurrentUser());
   const navigate = useNavigate();
   const [websites, setWebsites] = useState<Website[]>([]);
-  const [selectedWebsite, setSelectedWebsite] = useState<string>("");
+  const [selectedWebsite, setSelectedWebsite] = useState<string>("all");
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [filteredAudits, setFilteredAudits] = useState<AuditEntry[]>([]);
   const [modules, setModules] = useState<Module[]>([]);
@@ -44,7 +44,7 @@ const Reports = () => {
       audits = audits.filter(a => a.auditDate === selectedDate);
     }
 
-    if (selectedWebsite) {
+    if (selectedWebsite && selectedWebsite !== 'all') {
       audits = audits.filter(a => a.websiteId === selectedWebsite);
     }
 
@@ -108,12 +108,12 @@ const Reports = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="website">Website</Label>
-                <Select value={selectedWebsite} onValueChange={setSelectedWebsite}>
+                <Select value={selectedWebsite || 'all'} onValueChange={setSelectedWebsite}>
                   <SelectTrigger>
                     <SelectValue placeholder="All websites" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All websites</SelectItem>
+                    <SelectItem value="all">All websites</SelectItem>
                     {websites.map(website => (
                       <SelectItem key={website.id} value={website.id}>
                         {website.name}
@@ -133,7 +133,7 @@ const Reports = () => {
               <div className="flex flex-col items-center">
                 <Speedometer working={score.working} total={score.total} size={280} />
                 <p className="text-lg text-muted-foreground mt-4">
-                  {selectedWebsite 
+                  {selectedWebsite && selectedWebsite !== 'all'
                     ? `${getWebsiteName(selectedWebsite)} - ${selectedDate}`
                     : `All Websites - ${selectedDate}`
                   }
