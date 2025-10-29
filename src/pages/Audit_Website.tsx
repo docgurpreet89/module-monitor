@@ -190,70 +190,75 @@ const AuditWebsite = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {modules.length === 0 ? (
+        {modules.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <p className="text-muted-foreground">No modules configured for this website.</p>
               </CardContent>
             </Card>
           ) : (
-            modules.map((module) => {
-              const isAudited = isModuleAudited(module.id);
-              return (
-                <Card key={module.id} className={isAudited ? "border-primary/50" : ""}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="flex items-center gap-2">
-                          {module.name}
-                          {isAudited && (
-                            <CheckCircle className="w-5 h-5 text-primary" />
+            {/* Wrap modules in a grid container */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {modules.map((module) => {
+                const isAudited = isModuleAudited(module.id);
+                return (
+                  // Added flex flex-col for consistent height if needed
+                  <Card key={module.id} className={cn("flex flex-col", isAudited ? "border-primary/50" : "")}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="flex items-center gap-2">
+                            {module.name}
+                            {isAudited && (
+                              <CheckCircle className="w-5 h-5 text-primary" />
+                            )}
+                          </CardTitle>
+                          {module.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{module.description}</p>
                           )}
-                        </CardTitle>
-                        {module.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{module.description}</p>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label className="text-base font-semibold">Status *</Label>
-                      <RadioGroup
-                        value={auditData[module.id]?.status || ''}
-                        onValueChange={(value) => updateModuleStatus(module.id, value as 'working' | 'not_working')}
-                      >
-                        <div className="flex items-center space-x-2 p-3 rounded-md border border-border hover:bg-secondary/50">
-                          <RadioGroupItem value="working" id={`${module.id}-working`} />
-                          <Label htmlFor={`${module.id}-working`} className="flex-1 cursor-pointer flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-primary" />
-                            Working
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2 p-3 rounded-md border border-border hover:bg-secondary/50">
-                          <RadioGroupItem value="not_working" id={`${module.id}-not-working`} />
-                          <Label htmlFor={`${module.id}-not-working`} className="flex-1 cursor-pointer flex items-center gap-2">
-                            <XCircle className="w-4 h-4 text-destructive" />
-                            Not Working
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </div>
+                    </CardHeader>
+                    {/* Added flex-1 to make content grow */}
+                    <CardContent className="space-y-4 flex-1">
+                      <div className="space-y-2">
+                        <Label className="text-base font-semibold">Status *</Label>
+                        <RadioGroup
+                          value={auditData[module.id]?.status || ''}
+                          onValueChange={(value) => updateModuleStatus(module.id, value as 'working' | 'not_working')}
+                        >
+                          <div className="flex items-center space-x-2 p-3 rounded-md border border-border hover:bg-secondary/50">
+                            <RadioGroupItem value="working" id={`${module.id}-working`} />
+                            <Label htmlFor={`${module.id}-working`} className="flex-1 cursor-pointer flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-primary" />
+                              Working
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2 p-3 rounded-md border border-border hover:bg-secondary/50">
+                            <RadioGroupItem value="not_working" id={`${module.id}-not-working`} />
+                            <Label htmlFor={`${module.id}-not-working`} className="flex-1 cursor-pointer flex items-center gap-2">
+                              <XCircle className="w-4 h-4 text-destructive" />
+                              Not Working
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor={`${module.id}-remarks`}>Remarks (Optional)</Label>
-                      <Textarea
-                        id={`${module.id}-remarks`}
-                        placeholder="Add any notes or observations..."
-                        value={auditData[module.id]?.remarks || ''}
-                        onChange={(e) => updateModuleRemarks(module.id, e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })
+                      <div className="space-y-2">
+                        <Label htmlFor={`${module.id}-remarks`}>Remarks (Optional)</Label>
+                        <Textarea
+                          id={`${module.id}-remarks`}
+                          placeholder="Add any notes or observations..."
+                          value={auditData[module.id]?.remarks || ''}
+                          onChange={(e) => updateModuleRemarks(module.id, e.target.value)}
+                          rows={3}
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div> // <- Closing div for the grid
           )}
 
           {modules.length > 0 && (
